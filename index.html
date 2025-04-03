@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Nirmal!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+        .container {
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            margin: auto;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #ff5f5f;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ff3f3f;
+        }
+        .entries, .wishes {
+            background: white;
+            color: black;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px auto;
+            width: 50%;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎉 Happy Birthday Nirmal! 🎂</h1>
+
+    <div class="container">
+        <h2>Enter Your Roll No & Treat</h2>
+        <form id="entryForm">
+            <input type="text" id="roll" placeholder="Your Roll No" required>
+            <input type="text" id="treat" placeholder="Your Treat" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Send a Secret Wish</h2>
+        <form id="wishForm">
+            <input type="text" id="wish" placeholder="Write your wish..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <h2>Submitted Entries</h2>
+    <div class="entries" id="entries">Loading...</div>
+
+    <h2>Anonymous Wishes</h2>
+    <div class="wishes" id="wishes">Loading...</div>
+
+    <script>
+        // Handle form submissions
+        document.getElementById("entryForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const roll = document.getElementById("roll").value;
+            const treat = document.getElementById("treat").value;
+
+            await fetch("/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ roll, treat })
+            });
+
+            document.getElementById("roll").value = "";
+            document.getElementById("treat").value = "";
+            loadEntries();
+        });
+
+        document.getElementById("wishForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const wish = document.getElementById("wish").value;
+
+            await fetch("/wish", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ wish })
+            });
+
+            document.getElementById("wish").value = "";
+            loadWishes();
+        });
+
+        // Load Entries & Wishes
+        async function loadEntries() {
+            const response = await fetch("/entries");
+            const data = await response.json();
+            document.getElementById("entries").innerHTML = data.length ? data.map(e => `<p><b>${e.roll}</b>: ${e.treat}</p>`).join("") : "No entries yet.";
+        }
+
+        async function loadWishes() {
+            const response = await fetch("/wishes");
+            const data = await response.json();
+            document.getElementById("wishes").innerHTML = data.length ? data.map(w => `<p>💌 ${w}</p>`).join("") : "No wishes yet.";
+        }
+
+        loadEntries();
+        loadWishes();
+    </script>
+
+</body>
+</html>
